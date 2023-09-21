@@ -1,5 +1,5 @@
 import React from 'react'
-let api__url = "https://recipes-web-app.onrender.com/"
+let api__url = "http://recipes-web-application.onrender.com/"
 const Values = () => {
 
   return (

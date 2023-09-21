@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/static/css/main.db5a7817.css",
-    "main.js": "/static/js/main.2aaece80.js",
+    "main.js": "/static/js/main.4096e05a.js",
     "static/media/ideogramedit.png": "/static/media/ideogramedit.db576f98685c220fecfa.png",
     "static/media/ideogram.png": "/static/media/ideogram.e229a2d02f4a8c16c75a.png",
     "index.html": "/index.html",
     "main.db5a7817.css.map": "/static/css/main.db5a7817.css.map",
-    "main.2aaece80.js.map": "/static/js/main.2aaece80.js.map"
+    "main.4096e05a.js.map": "/static/js/main.4096e05a.js.map"
   },
   "entrypoints": [
     "static/css/main.db5a7817.css",
-    "static/js/main.2aaece80.js"
+    "static/js/main.4096e05a.js"
   ]
 }
