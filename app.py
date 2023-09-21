@@ -36,13 +36,13 @@ conn = psycopg2.connect(database=db_name, user=db_user,
                         password=db_password, host=db_host, port=db_port)
 
 # Serve React App
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def serve(path):
-    if path != "" and os.path.exists(app.static_folder + '/' + path):
-        return send_from_directory(app.static_folder, path)
-    else:
-        return send_from_directory(app.static_folder, 'index.html')
+# @app.route('/', defaults={'path': ''})
+# @app.route('/<path:path>')
+# def serve(path):
+#     if path != "" and os.path.exists(app.static_folder + '/' + path):
+#         return send_from_directory(app.static_folder, path)
+#     else:
+#         return send_from_directory(app.static_folder, 'index.html')
 
 
 @app.route('/get_all_users')
@@ -57,6 +57,7 @@ def get_all_users():
         users_dict.append({"id":user[0], "fullName":user[1], "username":user[2],"password":user[3], "email":user[4]})
     # Show the profile page with account info
     json_data = json.dumps(users_dict, indent=2)
+    json_data.headers.add("Access-Control-Allow-Origin", "*")
     # resp = jsonify(json_data)
     return json_data
 
