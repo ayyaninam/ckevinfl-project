@@ -57,7 +57,7 @@ def get_all_users():
         users_dict.append({"id":user[0], "fullName":user[1], "username":user[2],"password":user[3], "email":user[4]})
     # Show the profile page with account info
     json_data = json.dumps(users_dict, indent=2)
-    json_data.headers.add("Access-Control-Allow-Origin", "*")
+    # json_data.headers.add("Access-Control-Allow-Origin", "*")
     # resp = jsonify(json_data)
     return json_data
 
