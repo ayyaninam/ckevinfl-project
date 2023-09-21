@@ -26,14 +26,23 @@ Session(app)
 
 # database details 
 
-db_name = "ckevinfl_ykh7"
-db_user = "ckevinfl_ykh7_user"
-db_password = "gfXXmUTMXIuk7iXv8X9F3gQpjgyfRHyT"
-db_host = "dpg-ck5sveb6fquc739f4m4g-a.oregon-postgres.render.com"
-db_port = "5432"
 
-conn = psycopg2.connect(database=db_name, user=db_user,
+
+
+
+
+def get_db_connection():
+    db_name = "ckevinfl_ykh7"
+    db_user = "ckevinfl_ykh7_user"
+    db_password = "gfXXmUTMXIuk7iXv8X9F3gQpjgyfRHyT"
+    db_host = "dpg-ck5sveb6fquc739f4m4g-a.oregon-postgres.render.com"
+    db_port = "5432"
+    conn = psycopg2.connect(database=db_name, user=db_user,
                         password=db_password, host=db_host, port=db_port)
+
+
+    return conn
+
 
 # Serve React App
 # @app.route('/', defaults={'path': ''})
@@ -47,7 +56,9 @@ conn = psycopg2.connect(database=db_name, user=db_user,
 
 @app.route('/get_all_users')
 def get_all_users():
+    conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
    
     # Check if user is loggedin
     cursor.execute('SELECT * FROM users')
@@ -59,10 +70,14 @@ def get_all_users():
     json_data = json.dumps(users_dict, indent=2)
     # json_data.headers.add("Access-Control-Allow-Origin", "*")
     # resp = jsonify(json_data)
+    conn.close()
+    cursor.close()
+
     return json_data
 
 @app.route('/deleteuser/<int:id>')
 def deleteuser(id):
+    conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
    
     # Check if user is loggedin
@@ -74,10 +89,14 @@ def deleteuser(id):
     except:
         resp = jsonify({'status_code' : 400})
 
+    conn.close()
+    cursor.close()
+
     return resp
 
 @app.route('/edituser/<int:id>', methods=['POST', 'GET'])
 def edituser(id):
+    conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     if request.method == 'POST':
         _json = request.json
@@ -90,6 +109,8 @@ def edituser(id):
         account = cursor.fetchall()
         if len(account)>1:
             resp = jsonify({'message' : 'Account already exists! Change Username/Email! '})
+            conn.close()
+            cursor.close()
             return resp
         else:
             if password:
@@ -100,6 +121,10 @@ def edituser(id):
             conn.commit()
 
             resp = jsonify({'message' : 'DONE! '})
+
+            conn.close()
+            cursor.close()
+
             return resp
 
 
@@ -114,11 +139,15 @@ def edituser(id):
         user_dict = {"id":user[0], "fullName":user[1], "username":user[2],"password":user[3], "email":user[4]}
         json_data = json.dumps(user_dict, indent=2)
 
+        conn.close()
+        cursor.close()
+
         return json_data
 
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     # Check if "username", "password" and "email" POST requests exist (user submitted form)
     # if request.method == "POST":
@@ -147,25 +176,37 @@ def register():
         # If account exists show error and validation checks
         if account:
             resp = jsonify({'message' : 'Account already exists! Change Email! '})
+            conn.close()
+            cursor.close()
             return resp
         elif not re.match(r'[^@]+@[^@]+\.[^@]+', email):
             resp = jsonify({'message' : 'Invalid email address!'})
+            conn.close()
+            cursor.close()
             return resp
         elif not re.match(r'[A-Za-z0-9]+', username):
             resp = jsonify({'message' : 'Username must contain only characters and numbers!'})
+            conn.close()
+            cursor.close()
             return resp
         elif not username or not password or not email:
             resp = jsonify({'message' : 'Please fill out the form!'})
+            conn.close()
+            cursor.close()
             return resp
         else:
             # Account doesnt exists and the form data is valid, now insert new account into users table
             cursor.execute("INSERT INTO users (fullname, username, password, email) VALUES (%s,%s,%s,%s)", (fullname, username, _hashed_password, email))
             conn.commit()
             resp = jsonify({'message' : 'You have successfully registered!'})
+            conn.close()
+            cursor.close()
             return resp
     elif request.method == 'POST':
         # Form is empty... (no POST data)
         resp = jsonify({'message' : 'Please fill out the form!'})
+        conn.close()
+        cursor.close()
         return resp
     # Show registration form with message (if any)
     # return render_template('register.html')
@@ -185,6 +226,7 @@ def register():
 
 @app.route('/login', methods=['POST'])
 def login():
+    conn = get_db_connection()
     _json = request.json
     _email = _json['email']
     _password = _json['password']
@@ -205,19 +247,26 @@ def login():
             if row:
                 if check_password_hash(password, _password):
                     # session['email'] = email
+                    conn.close()
                     cursor.close()
                     return jsonify({'message' : 'You are logged in successfully', 'email': email, 'username':row['username'], 'fullName':row['fullname'] , 'status_code': 200})
                 else:
                     resp = jsonify({'message' : 'Bad Request - invalid password', 'status_code': 400})
                     resp.status_code = 400
+                    conn.close()
+                    cursor.close()
                     return resp
         except:
             resp = jsonify({'message' : 'Account Not Found' , 'status_code': 400})
             resp.status_code = 400
+            conn.close()
+            cursor.close()
             return resp
     else:
         resp = jsonify({'message' : 'Bad Request - invalid credendtials'})
         resp.status_code = 400
+        conn.close()
+        cursor.close()
         return resp
 
 
